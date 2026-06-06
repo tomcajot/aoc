@@ -1,4 +1,4 @@
-module d1p1(input logic clk, rst_n, input logic [10:0] mem [0:4483], output logic [11:0] out);
+module d1p1 #(parameter INPUT_SIZE=4483) (input logic clk, rst_n, input logic [10:0] mem [0:INPUT_SIZE], output logic [11:0] out);
 
     typedef enum logic [1:0] { idle, counting, reducing, done } statetype;
     statetype state, next_state;
@@ -23,7 +23,7 @@ module d1p1(input logic clk, rst_n, input logic [10:0] mem [0:4483], output logi
     end
 
     always_ff @(posedge clk) begin
-        if (!rst_n || count > 15'd4484) count <= 15'b0;
+        if (!rst_n || count > INPUT_SIZE) count <= 15'b0;
         if (state == counting) count <= count + 15'b1;
     end
 
@@ -54,7 +54,7 @@ module d1p1(input logic clk, rst_n, input logic [10:0] mem [0:4483], output logi
             idle: next_state = counting;
             counting: begin
                 if (next_value > 20'sd99 || next_value < -20'sd99) next_state = reducing;
-                else if (count == 15'd4483) next_state = done;
+                else if (count == INPUT_SIZE) next_state = done;
                 else next_state = counting;
             end
             reducing: begin

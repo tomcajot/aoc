@@ -1,7 +1,7 @@
 mem = []
 nums = []
 
-with open("input.txt") as f:
+with open("input_2.txt") as f:
     for l in f:
         n = int(l.strip()[1:])
         nums.append(n)
@@ -11,7 +11,7 @@ with open("input.txt") as f:
         else:
             mem.append("0" + str(number))
 
-with open("input.vmem", "x") as out:
+with open("input_2.vmem", "x") as out:
     for i in range(len(mem)):
         out.write(mem[i] + "\n")
 
