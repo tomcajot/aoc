@@ -1,4 +1,4 @@
-module d1p1 #(parameter INPUT_SIZE=4483) (input logic clk, rst_n, input logic [10:0] mem [0:INPUT_SIZE], output logic [11:0] out);
+module d1p2 #(parameter INPUT_SIZE=4483) (input logic clk, rst_n, input logic [10:0] mem [0:INPUT_SIZE], output logic [14:0] out);
 
     typedef enum logic [1:0] { idle, counting, reducing, done } statetype;
     statetype state, next_state;
@@ -9,7 +9,7 @@ module d1p1 #(parameter INPUT_SIZE=4483) (input logic clk, rst_n, input logic [1
 
     logic signed [19:0] value;
     logic signed [19:0] next_value;
-    logic [11:0] password;
+    logic [14:0] password;
     assign out = password;
 
     always_ff @(posedge clk) begin
@@ -25,6 +25,15 @@ module d1p1 #(parameter INPUT_SIZE=4483) (input logic clk, rst_n, input logic [1
     always_ff @(posedge clk) begin
         if (!rst_n || count > INPUT_SIZE) count <= 15'b0;
         if (state == counting) count <= count + 15'b1;
+    end
+
+    always_ff @(posedge clk) begin
+        if (!rst_n) password <= 15'b0;
+        else begin
+            if (value == 20'b0) password <= password + 1'b1;
+            if (state == reducing) password <= password + 1'b1;
+            if (state == counting && value != 20'b0 && (value[19] != next_value[19])) password <= password + 1'b1;
+        end
     end
 
     always_comb begin
@@ -58,13 +67,6 @@ module d1p1 #(parameter INPUT_SIZE=4483) (input logic clk, rst_n, input logic [1
                 next_state = done;
             end
         endcase
-    end
-
-    always_ff @(posedge clk) begin
-        if (!rst_n) password <= 12'b0;
-        else begin
-            if (value == 20'b0) password <= password + 1'b1;
-        end
     end
 
 endmodule
